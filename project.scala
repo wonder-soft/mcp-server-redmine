@@ -3,3 +3,5 @@
 //> using dep "com.softwaremill.sttp.client4::circe:4.0.15"
 //> using dep "io.circe::circe-generic:0.14.15"
 //> using dep "io.circe::circe-parser:0.14.15"
+
+//> using test.dep "org.scalameta::munit::1.0.0"
