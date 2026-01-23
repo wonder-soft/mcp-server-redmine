@@ -1,4 +1,4 @@
-package redmine.mcp.adapter
+package com.wonder_soft.mcp.redmine.adapter
 
 import io.circe.syntax.*
 import io.circe.parser.*
@@ -10,10 +10,10 @@ import java.util.UUID
 import scala.collection.mutable
 import java.util.concurrent.{ConcurrentHashMap, LinkedBlockingQueue, TimeUnit}
 
-import redmine.mcp.domain.*
-import redmine.mcp.domain.McpModels.*
-import redmine.mcp.usecase.RedmineUsecase
-import redmine.mcp.util.Logger
+import com.wonder_soft.mcp.redmine.domain.*
+import com.wonder_soft.mcp.redmine.domain.McpModels.*
+import com.wonder_soft.mcp.redmine.usecase.RedmineUsecase
+import com.wonder_soft.mcp.redmine.util.Logger
 
 // Session data: stores the response queue for sending responses via SSE
 case class McpSession(

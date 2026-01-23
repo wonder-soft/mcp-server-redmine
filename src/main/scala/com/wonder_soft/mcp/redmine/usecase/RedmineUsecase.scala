@@ -1,7 +1,7 @@
-package redmine.mcp.usecase
+package com.wonder_soft.mcp.redmine.usecase
 
-import redmine.mcp.adapter.RedmineApiAdapter
-import redmine.mcp.domain.*
+import com.wonder_soft.mcp.redmine.adapter.RedmineApiAdapter
+import com.wonder_soft.mcp.redmine.domain.*
 
 class RedmineUsecase {
   val adapter = new RedmineApiAdapter()

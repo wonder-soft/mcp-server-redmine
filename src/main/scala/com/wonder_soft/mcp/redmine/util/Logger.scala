@@ -1,4 +1,4 @@
-package redmine.mcp.util
+package com.wonder_soft.mcp.redmine.util
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
