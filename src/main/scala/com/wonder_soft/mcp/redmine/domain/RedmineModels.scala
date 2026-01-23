@@ -1,4 +1,4 @@
-package redmine.mcp.domain
+package com.wonder_soft.mcp.redmine.domain
 
 import io.circe.{Encoder, Decoder}
 import io.circe.generic.semiauto.*

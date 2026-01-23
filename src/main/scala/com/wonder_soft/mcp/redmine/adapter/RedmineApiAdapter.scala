@@ -1,11 +1,11 @@
-package redmine.mcp.adapter
+package com.wonder_soft.mcp.redmine.adapter
 
 import sttp.client4.*
 import sttp.client4.circe.*
 import io.circe.generic.auto.*
 import io.circe.syntax.*
-import redmine.mcp.domain.*
-import redmine.mcp.util.Logger
+import com.wonder_soft.mcp.redmine.domain.*
+import com.wonder_soft.mcp.redmine.util.Logger
 
 class RedmineApiAdapter {
   private val redmineEndpoint = sys.env.getOrElse("REDMINE_ENDPOINT", "")

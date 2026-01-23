@@ -1,10 +1,10 @@
-package redmine.mcp
+package com.wonder_soft.mcp.redmine
 
 import com.sun.net.httpserver.{HttpServer, HttpHandler, HttpExchange}
 import java.net.InetSocketAddress
 import java.util.concurrent.Executors
-import redmine.mcp.adapter.McpServerAdapter
-import redmine.mcp.util.Logger
+import com.wonder_soft.mcp.redmine.adapter.McpServerAdapter
+import com.wonder_soft.mcp.redmine.util.Logger
 
 object Main {
   def main(args: Array[String]): Unit = {
