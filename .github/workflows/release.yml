@@ -1,0 +1,95 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g., v1.0.0)"
+        required: true
+        type: string
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            artifact_name: mcp-server-redmine-macos-arm64
+            binary_name: mcp-server-redmine
+          - os: macos-13
+            artifact_name: mcp-server-redmine-macos-x64
+            binary_name: mcp-server-redmine
+          - os: windows-latest
+            artifact_name: mcp-server-redmine-windows-x64
+            binary_name: mcp-server-redmine.exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: "17"
+          distribution: "graalvm-community"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup scala-cli
+        uses: VirtusLab/scala-cli-setup@v1
+
+      - name: Build native image
+        shell: bash
+        run: |
+          scala-cli --power package . --native-image -o ${{ matrix.binary_name }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.binary_name }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release
+          cp artifacts/mcp-server-redmine-macos-arm64/mcp-server-redmine release/mcp-server-redmine-macos-arm64
+          cp artifacts/mcp-server-redmine-macos-x64/mcp-server-redmine release/mcp-server-redmine-macos-x64
+          cp artifacts/mcp-server-redmine-windows-x64/mcp-server-redmine.exe release/mcp-server-redmine-windows-x64.exe
+          chmod +x release/mcp-server-redmine-macos-arm64
+          chmod +x release/mcp-server-redmine-macos-x64
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          artifacts: "release/*"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generateReleaseNotes: true
+          draft: ${{ github.event_name == 'workflow_dispatch' }}

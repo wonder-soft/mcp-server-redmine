@@ -62,6 +62,32 @@ scala-cli package . -o mcp-server-redmine.jar --assembly
 java -jar mcp-server-redmine.jar
 ```
 
+### Using pre-built binary (Recommended for production)
+
+Download the pre-built native binary from the [Releases](https://github.com/letusfly85/mcp-server-redmine/releases) page:
+
+- `mcp-server-redmine-macos-arm64` - macOS Apple Silicon (M1/M2/M3)
+- `mcp-server-redmine-macos-x64` - macOS Intel
+- `mcp-server-redmine-windows-x64.exe` - Windows x64
+
+```bash
+# macOS/Linux
+chmod +x mcp-server-redmine-macos-arm64
+./mcp-server-redmine-macos-arm64
+
+# Windows
+mcp-server-redmine-windows-x64.exe
+```
+
+### Building a native binary locally
+
+Requires GraalVM (automatically downloaded by scala-cli):
+
+```bash
+scala-cli --power package . --native-image -o mcp-server-redmine
+./mcp-server-redmine
+```
+
 ## Configuration
 
 Set the following environment variables:
@@ -105,6 +131,25 @@ scala-cli run .
 ### Configuring with Claude Desktop
 
 Add the following to your Claude Desktop configuration (`claude_desktop_config.json`):
+
+**Using pre-built binary (Recommended):**
+
+```json
+{
+  "mcpServers": {
+    "redmine": {
+      "command": "/path/to/mcp-server-redmine-macos-arm64",
+      "env": {
+        "REDMINE_ENDPOINT": "https://redmine.example.com",
+        "REDMINE_API_KEY": "your-api-key",
+        "REDMINE_PROJECT_IDENTIFIER": "your-project"
+      }
+    }
+  }
+}
+```
+
+**Using scala-cli:**
 
 ```json
 {
