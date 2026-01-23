@@ -43,7 +43,19 @@ jobs:
         env:
           JAVA_HOME: ${{ env.GRAALVM_HOME }}
         run: |
-          scala-cli --power package . --native-image --graalvm-java-opt=-H:+ReportExceptionStackTraces --graalvm-java-opt=--no-fallback -o ${{ matrix.binary_name }}
+          scala-cli --power package . --native-image -o ${{ matrix.binary_name }}
+
+      - name: Verify binary (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          file ${{ matrix.binary_name }}
+          ls -lh ${{ matrix.binary_name }}
+          # Fail if binary is smaller than 10MB (likely a fallback image)
+          size=$(stat -f%z ${{ matrix.binary_name }})
+          if [ "$size" -lt 10000000 ]; then
+            echo "Error: Binary too small ($size bytes), likely a fallback image"
+            exit 1
+          fi
 
       - name: Build native image (Windows)
         if: runner.os == 'Windows'
@@ -51,7 +63,18 @@ jobs:
         env:
           JAVA_HOME: ${{ env.GRAALVM_HOME }}
         run: |
-          scala-cli --power package . --native-image --graalvm-java-opt=-H:+ReportExceptionStackTraces --graalvm-java-opt=--no-fallback -o ${{ matrix.binary_name }}
+          scala-cli --power package . --native-image -o ${{ matrix.binary_name }}
+
+      - name: Verify binary (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Get-Item ${{ matrix.binary_name }} | Select-Object Name, Length
+          $size = (Get-Item ${{ matrix.binary_name }}).Length
+          if ($size -lt 10000000) {
+            Write-Error "Binary too small ($size bytes), likely a fallback image"
+            exit 1
+          }
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
