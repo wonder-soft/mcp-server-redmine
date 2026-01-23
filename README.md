@@ -160,26 +160,14 @@ scala-cli run .
 
 **Step 2: Configure Claude**
 
-#### Claude Desktop
-
-Add the following to your Claude Desktop configuration (`claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "redmine": {
-      "url": "http://localhost:8080/sse"
-    }
-  }
-}
-```
+This server uses HTTP SSE transport. Use `mcp-remote` to connect.
 
 #### Claude Code
 
 Option 1: Add via CLI
 
 ```bash
-claude mcp add --transport http redmine http://localhost:8080/sse
+claude mcp add redmine -- npx mcp-remote http://localhost:8080/sse
 ```
 
 Option 2: Add to `.mcp.json` in your project root
@@ -188,8 +176,8 @@ Option 2: Add to `.mcp.json` in your project root
 {
   "mcpServers": {
     "redmine": {
-      "type": "http",
-      "url": "http://localhost:8080/sse"
+      "command": "npx",
+      "args": ["mcp-remote", "http://localhost:8080/sse"]
     }
   }
 }
@@ -199,6 +187,21 @@ Verify the connection:
 
 ```bash
 claude mcp list
+```
+
+#### Claude Desktop
+
+Add the following to your Claude Desktop configuration (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "redmine": {
+      "command": "npx",
+      "args": ["mcp-remote", "http://localhost:8080/sse"]
+    }
+  }
+}
 ```
 
 ## Available Tools
