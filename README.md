@@ -69,19 +69,26 @@ Download the pre-built native binary from the [Releases](https://github.com/wond
 - `mcp-server-redmine-macos-arm64` - macOS Apple Silicon (M1/M2/M3)
 - `mcp-server-redmine-windows-x64.exe` - Windows x64
 
+**macOS:**
+
 ```bash
-# macOS
-chmod +x mcp-server-redmine-macos-arm64
+# Remove quarantine attribute and make executable
+xattr -d com.apple.quarantine mcp-server-redmine-macos-arm64
+chmod u+x mcp-server-redmine-macos-arm64
+
+# Run directly
 ./mcp-server-redmine-macos-arm64
 
-# Windows
-mcp-server-redmine-windows-x64.exe
+# Or install to PATH for global access
+sudo cp mcp-server-redmine-macos-arm64 /usr/local/bin/mcp-server-redmine
+mcp-server-redmine
 ```
 
-> **Note (macOS):** If you see a security warning like "cannot be opened because the developer cannot be verified", run:
-> ```bash
-> xattr -d com.apple.quarantine mcp-server-redmine-macos-arm64
-> ```
+**Windows:**
+
+```powershell
+mcp-server-redmine-windows-x64.exe
+```
 
 ### Building a native binary locally
 
