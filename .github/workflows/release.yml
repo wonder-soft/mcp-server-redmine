@@ -41,8 +41,14 @@ jobs:
       - name: Setup scala-cli
         uses: VirtusLab/scala-cli-setup@v1
 
-      - name: Build native image
-        shell: bash
+      - name: Build native image (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          scala-cli --power package . --native-image -o ${{ matrix.binary_name }}
+
+      - name: Build native image (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
         run: |
           scala-cli --power package . --native-image -o ${{ matrix.binary_name }}
 
