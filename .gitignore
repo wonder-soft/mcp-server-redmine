@@ -1,0 +1,28 @@
+# scala-cli
+.scala-build/
+.bsp/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.metals/
+.bloop/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+.envrc
+
+# Build outputs
+*.jar
+*.class
+target/
+out/
