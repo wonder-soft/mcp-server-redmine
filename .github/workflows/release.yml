@@ -51,6 +51,12 @@ jobs:
             exit 1
           fi
 
+      - name: Sign binary (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          codesign --force --sign - ${{ matrix.binary_name }}
+          codesign --verify ${{ matrix.binary_name }}
+
       - name: Build native image (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
