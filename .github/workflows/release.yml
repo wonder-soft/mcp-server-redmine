@@ -19,9 +19,6 @@ jobs:
           - os: macos-latest
             artifact_name: mcp-server-redmine-macos-arm64
             binary_name: mcp-server-redmine
-          - os: macos-13
-            artifact_name: mcp-server-redmine-macos-x64
-            binary_name: mcp-server-redmine
           - os: windows-latest
             artifact_name: mcp-server-redmine-windows-x64
             binary_name: mcp-server-redmine.exe
@@ -76,10 +73,8 @@ jobs:
         run: |
           mkdir -p release
           cp artifacts/mcp-server-redmine-macos-arm64/mcp-server-redmine release/mcp-server-redmine-macos-arm64
-          cp artifacts/mcp-server-redmine-macos-x64/mcp-server-redmine release/mcp-server-redmine-macos-x64
           cp artifacts/mcp-server-redmine-windows-x64/mcp-server-redmine.exe release/mcp-server-redmine-windows-x64.exe
           chmod +x release/mcp-server-redmine-macos-arm64
-          chmod +x release/mcp-server-redmine-macos-x64
 
       - name: Determine version
         id: version
