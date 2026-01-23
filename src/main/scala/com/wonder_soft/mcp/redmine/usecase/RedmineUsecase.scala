@@ -3,8 +3,7 @@ package com.wonder_soft.mcp.redmine.usecase
 import com.wonder_soft.mcp.redmine.adapter.RedmineApiAdapter
 import com.wonder_soft.mcp.redmine.domain.*
 
-class RedmineUsecase {
-  val adapter = new RedmineApiAdapter()
+class RedmineUsecase(val adapter: RedmineApiAdapter = new RedmineApiAdapter()) {
 
   def createTicket(
     subject: String,

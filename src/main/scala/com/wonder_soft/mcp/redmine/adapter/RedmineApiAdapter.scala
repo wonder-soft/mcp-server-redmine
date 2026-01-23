@@ -7,10 +7,17 @@ import io.circe.syntax.*
 import com.wonder_soft.mcp.redmine.domain.*
 import com.wonder_soft.mcp.redmine.util.Logger
 
-class RedmineApiAdapter {
-  private val redmineEndpoint = sys.env.getOrElse("REDMINE_ENDPOINT", "")
-  private val redmineApiKey = sys.env.getOrElse("REDMINE_API_KEY", "")
-  private val redmineProjectId = sys.env.getOrElse("REDMINE_PROJECT_IDENTIFIER", "")
+class RedmineApiAdapter(
+  backendProvider: () => SyncBackend = () => DefaultSyncBackend(),
+  endpoint: String = sys.env.getOrElse("REDMINE_ENDPOINT", ""),
+  apiKey: String = sys.env.getOrElse("REDMINE_API_KEY", ""),
+  projectId: String = sys.env.getOrElse("REDMINE_PROJECT_IDENTIFIER", "")
+) {
+  private val redmineEndpoint = endpoint
+  private val redmineApiKey = apiKey
+  private val redmineProjectId = projectId
+
+  protected def createBackend(): SyncBackend = backendProvider()
 
   def getTicket(ticketId: Long): Either[String, RedmineTicket] = {
     if (redmineEndpoint.isEmpty) {
@@ -18,7 +25,7 @@ class RedmineApiAdapter {
     } else if (redmineApiKey.isEmpty) {
       Left("REDMINE_API_KEY environment variable is not set")
     } else {
-      val backend = DefaultSyncBackend()
+      val backend = createBackend()
 
       val request = basicRequest
         .get(uri"$redmineEndpoint/issues/$ticketId.json")
@@ -53,7 +60,7 @@ class RedmineApiAdapter {
     } else if (redmineProjectId.isEmpty) {
       Left("REDMINE_PROJECT_IDENTIFIER environment variable is not set")
     } else {
-      val backend = DefaultSyncBackend()
+      val backend = createBackend()
 
       val issueData = Map(
         "project_id" -> redmineProjectId,
@@ -101,7 +108,7 @@ class RedmineApiAdapter {
     } else if (redmineApiKey.isEmpty) {
       Left("REDMINE_API_KEY environment variable is not set")
     } else {
-      val backend = DefaultSyncBackend()
+      val backend = createBackend()
 
       val baseIssueData = Map.empty[String, String] ++
         request.subject.map("subject" -> _) ++
@@ -155,7 +162,7 @@ class RedmineApiAdapter {
     } else if (redmineApiKey.isEmpty) {
       Left("REDMINE_API_KEY environment variable is not set")
     } else {
-      val backend = DefaultSyncBackend()
+      val backend = createBackend()
 
       val baseUri = uri"$redmineEndpoint/issues.json?parent_id=$parentId&status_id=*&limit=$limit&offset=$offset"
       val requestUri = assignedToId match {
@@ -187,7 +194,7 @@ class RedmineApiAdapter {
     } else if (redmineApiKey.isEmpty) {
       Left("REDMINE_API_KEY environment variable is not set")
     } else {
-      val backend = DefaultSyncBackend()
+      val backend = createBackend()
 
       val request = basicRequest
         .get(uri"$redmineEndpoint/search.xml?q=$query&titles_only=1&issues=1&limit=$limit&offset=$offset")
@@ -213,7 +220,7 @@ class RedmineApiAdapter {
     } else if (redmineApiKey.isEmpty) {
       Left("REDMINE_API_KEY environment variable is not set")
     } else {
-      val backend = DefaultSyncBackend()
+      val backend = createBackend()
 
       val httpRequest = basicRequest
         .get(uri"$redmineEndpoint/issues/$issueId/relations.json")
@@ -239,7 +246,7 @@ class RedmineApiAdapter {
     } else if (redmineApiKey.isEmpty) {
       Left("REDMINE_API_KEY environment variable is not set")
     } else {
-      val backend = DefaultSyncBackend()
+      val backend = createBackend()
 
       val relationData = RedmineRelationRequest(
         issue_to_id = toIssueId,
@@ -273,7 +280,7 @@ class RedmineApiAdapter {
     } else if (redmineApiKey.isEmpty) {
       Left("REDMINE_API_KEY environment variable is not set")
     } else {
-      val backend = DefaultSyncBackend()
+      val backend = createBackend()
 
       val issueData = Map(
         "notes" -> comment
@@ -306,7 +313,7 @@ class RedmineApiAdapter {
     } else if (redmineApiKey.isEmpty) {
       Left("REDMINE_API_KEY environment variable is not set")
     } else {
-      val backend = DefaultSyncBackend()
+      val backend = createBackend()
 
       val request = basicRequest
         .get(uri"$redmineEndpoint/issues/$ticketId.json?include=journals")
@@ -335,7 +342,7 @@ class RedmineApiAdapter {
     } else if (redmineApiKey.isEmpty) {
       Left("REDMINE_API_KEY environment variable is not set")
     } else {
-      val backend = DefaultSyncBackend()
+      val backend = createBackend()
 
       val baseUri = uri"$redmineEndpoint/users.json?status=1&limit=$limit&offset=$offset"
       val requestUri = name match {

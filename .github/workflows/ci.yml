@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup scala-cli
+        uses: VirtusLab/scala-cli-setup@v1
+        with:
+          scala-cli-version: "1.9.1"
+
+      - name: Compile
+        run: scala-cli compile .
+
+      - name: Run tests
+        run: scala-cli test .
+
+  build-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup scala-cli
+        uses: VirtusLab/scala-cli-setup@v1
+        with:
+          scala-cli-version: "1.9.1"
+
+      - name: Build JAR
+        run: scala-cli --power package . -o mcp-server-redmine.jar --assembly
+
+      - name: Verify JAR
+        run: |
+          ls -lh mcp-server-redmine.jar
+          file mcp-server-redmine.jar
