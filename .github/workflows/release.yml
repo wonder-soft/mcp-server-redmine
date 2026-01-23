@@ -40,14 +40,18 @@ jobs:
 
       - name: Build native image (Unix)
         if: runner.os != 'Windows'
+        env:
+          JAVA_HOME: ${{ env.GRAALVM_HOME }}
         run: |
-          scala-cli --power package . --native-image -o ${{ matrix.binary_name }}
+          scala-cli --power package . --native-image --graalvm-java-opt=-H:+ReportExceptionStackTraces --graalvm-java-opt=--no-fallback -o ${{ matrix.binary_name }}
 
       - name: Build native image (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
+        env:
+          JAVA_HOME: ${{ env.GRAALVM_HOME }}
         run: |
-          scala-cli --power package . --native-image -o ${{ matrix.binary_name }}
+          scala-cli --power package . --native-image --graalvm-java-opt=-H:+ReportExceptionStackTraces --graalvm-java-opt=--no-fallback -o ${{ matrix.binary_name }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
