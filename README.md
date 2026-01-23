@@ -67,7 +67,6 @@ java -jar mcp-server-redmine.jar
 Download the pre-built native binary from the [Releases](https://github.com/wonder-soft/mcp-server-redmine/releases) page:
 
 - `mcp-server-redmine-macos-arm64` - macOS Apple Silicon (M1/M2/M3)
-- `mcp-server-redmine-macos-x64` - macOS Intel
 - `mcp-server-redmine-windows-x64.exe` - Windows x64
 
 ```bash
