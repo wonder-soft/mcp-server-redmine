@@ -31,7 +31,8 @@ jobs:
       - name: Setup scala-cli
         uses: VirtusLab/scala-cli-setup@v1
         with:
-          version: "1.9.1"
+          version: "v1.9.1"
+          power: true
 
       - name: Build native image (Unix)
         if: runner.os != 'Windows'
