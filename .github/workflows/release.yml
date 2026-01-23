@@ -28,22 +28,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup GraalVM
-        uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: "17"
-          distribution: "graalvm-community"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup scala-cli
         uses: VirtusLab/scala-cli-setup@v1
 
       - name: Build native image (Unix)
         if: runner.os != 'Windows'
-        env:
-          JAVA_HOME: ${{ env.GRAALVM_HOME }}
         run: |
-          scala-cli --power package . --native-image -o ${{ matrix.binary_name }}
+          scala-cli --power package . --native-image --graalvm-version 22.3.1 --graalvm-java-version 17 -o ${{ matrix.binary_name }}
 
       - name: Verify binary (Unix)
         if: runner.os != 'Windows'
@@ -60,10 +51,8 @@ jobs:
       - name: Build native image (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        env:
-          JAVA_HOME: ${{ env.GRAALVM_HOME }}
         run: |
-          scala-cli --power package . --native-image -o ${{ matrix.binary_name }}
+          scala-cli --power package . --native-image --graalvm-version 22.3.1 --graalvm-java-version 17 -o ${{ matrix.binary_name }}
 
       - name: Verify binary (Windows)
         if: runner.os == 'Windows'
