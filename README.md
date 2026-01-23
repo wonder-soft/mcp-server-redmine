@@ -139,43 +139,66 @@ scala-cli run .
 - **SSE Endpoint**: `http://localhost:8080/sse`
 - **Message Endpoint**: `http://localhost:8080/message`
 
-### Configuring with Claude Desktop
+### Configuring with Claude
+
+This MCP server uses HTTP SSE transport. You need to start the server first, then configure Claude to connect to it.
+
+**Step 1: Start the server**
+
+```bash
+# Set environment variables and start
+export REDMINE_ENDPOINT="https://redmine.example.com"
+export REDMINE_API_KEY="your-api-key"
+export REDMINE_PROJECT_IDENTIFIER="your-project"
+
+# Using pre-built binary
+mcp-server-redmine
+
+# Or using scala-cli
+scala-cli run .
+```
+
+**Step 2: Configure Claude**
+
+#### Claude Desktop
 
 Add the following to your Claude Desktop configuration (`claude_desktop_config.json`):
-
-**Using pre-built binary (Recommended):**
 
 ```json
 {
   "mcpServers": {
     "redmine": {
-      "command": "/path/to/mcp-server-redmine-macos-arm64",
-      "env": {
-        "REDMINE_ENDPOINT": "https://redmine.example.com",
-        "REDMINE_API_KEY": "your-api-key",
-        "REDMINE_PROJECT_IDENTIFIER": "your-project"
-      }
+      "url": "http://localhost:8080/sse"
     }
   }
 }
 ```
 
-**Using scala-cli:**
+#### Claude Code
+
+Option 1: Add via CLI
+
+```bash
+claude mcp add --transport http redmine http://localhost:8080/sse
+```
+
+Option 2: Add to `.mcp.json` in your project root
 
 ```json
 {
   "mcpServers": {
     "redmine": {
-      "command": "scala-cli",
-      "args": ["run", "/path/to/mcp-server-redmine"],
-      "env": {
-        "REDMINE_ENDPOINT": "https://redmine.example.com",
-        "REDMINE_API_KEY": "your-api-key",
-        "REDMINE_PROJECT_IDENTIFIER": "your-project"
-      }
+      "type": "http",
+      "url": "http://localhost:8080/sse"
     }
   }
 }
+```
+
+Verify the connection:
+
+```bash
+claude mcp list
 ```
 
 ## Available Tools
