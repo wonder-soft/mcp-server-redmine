@@ -19,6 +19,9 @@ jobs:
           - os: macos-latest
             artifact_name: mcp-server-redmine-macos-arm64
             binary_name: mcp-server-redmine
+          - os: ubuntu-latest
+            artifact_name: mcp-server-redmine-linux-x64
+            binary_name: mcp-server-redmine
           - os: windows-latest
             artifact_name: mcp-server-redmine-windows-x64
             binary_name: mcp-server-redmine.exe
@@ -39,13 +42,25 @@ jobs:
         run: |
           scala-cli --power package . --native-image --graalvm-version 22.3.1 --graalvm-java-version 17 -o ${{ matrix.binary_name }}
 
-      - name: Verify binary (Unix)
-        if: runner.os != 'Windows'
+      - name: Verify binary (macOS)
+        if: runner.os == 'macOS'
         run: |
           file ${{ matrix.binary_name }}
           ls -lh ${{ matrix.binary_name }}
           # Fail if binary is smaller than 10MB (likely a fallback image)
           size=$(stat -f%z ${{ matrix.binary_name }})
+          if [ "$size" -lt 10000000 ]; then
+            echo "Error: Binary too small ($size bytes), likely a fallback image"
+            exit 1
+          fi
+
+      - name: Verify binary (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          file ${{ matrix.binary_name }}
+          ls -lh ${{ matrix.binary_name }}
+          # Fail if binary is smaller than 10MB (likely a fallback image)
+          size=$(stat -c%s ${{ matrix.binary_name }})
           if [ "$size" -lt 10000000 ]; then
             echo "Error: Binary too small ($size bytes), likely a fallback image"
             exit 1
@@ -98,8 +113,10 @@ jobs:
         run: |
           mkdir -p release
           cp artifacts/mcp-server-redmine-macos-arm64/mcp-server-redmine release/mcp-server-redmine-macos-arm64
+          cp artifacts/mcp-server-redmine-linux-x64/mcp-server-redmine release/mcp-server-redmine-linux-x64
           cp artifacts/mcp-server-redmine-windows-x64/mcp-server-redmine.exe release/mcp-server-redmine-windows-x64.exe
           chmod +x release/mcp-server-redmine-macos-arm64
+          chmod +x release/mcp-server-redmine-linux-x64
 
       - name: Determine version
         id: version
