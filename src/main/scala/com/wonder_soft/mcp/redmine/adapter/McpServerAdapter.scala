@@ -340,7 +340,8 @@ class McpServerAdapter extends HttpHandler {
             "assignedToId" -> Map("type" -> "number".asJson, "description" -> "Assignee user ID".asJson).asJson,
             "clearAssignee" -> Map("type" -> "boolean".asJson, "description" -> "Set to true to clear the assignee (default: false)".asJson).asJson,
             "relatedTicketIds" -> Map("type" -> "array".asJson, "items" -> Map("type" -> "number".asJson).asJson, "description" -> "Related ticket IDs".asJson).asJson,
-            "dueDate" -> Map("type" -> "string".asJson, "description" -> "Due date (YYYY-MM-DD format)".asJson).asJson
+            "dueDate" -> Map("type" -> "string".asJson, "description" -> "Due date (YYYY-MM-DD format)".asJson).asJson,
+            "trackerId" -> Map("type" -> "number".asJson, "description" -> "Tracker ID".asJson).asJson
           ).asJson,
           "required" -> List("id").asJson
         ).asJson
@@ -410,6 +411,18 @@ class McpServerAdapter extends HttpHandler {
         ).asJson
       ),
       McpTool(
+        name = "change_redmine_ticket_tracker",
+        description = "Change the tracker of a Redmine ticket",
+        inputSchema = Map(
+          "type" -> "object".asJson,
+          "properties" -> Map(
+            "ticketId" -> Map("type" -> "number".asJson, "description" -> "Ticket ID".asJson).asJson,
+            "trackerId" -> Map("type" -> "number".asJson, "description" -> "New tracker ID".asJson).asJson
+          ).asJson,
+          "required" -> List("ticketId", "trackerId").asJson
+        ).asJson
+      ),
+      McpTool(
         name = "get_redmine_users",
         description = "Search Redmine users",
         inputSchema = Map(
@@ -459,6 +472,7 @@ class McpServerAdapter extends HttpHandler {
       case Some("add_redmine_comment") => handleAddComment(id, params)
       case Some("change_redmine_ticket_status") => handleChangeTicketStatus(id, params)
       case Some("change_bulk_redmine_ticket_status") => handleChangeBulkTicketStatus(id, params)
+      case Some("change_redmine_ticket_tracker") => handleChangeTicketTracker(id, params)
       case Some("get_redmine_users") => handleGetUsers(id, params)
       case Some("get_redmine_comments") => handleGetComments(id, params)
       case Some("get_redmine_relations") => handleGetRelations(id, params)
@@ -542,10 +556,11 @@ class McpServerAdapter extends HttpHandler {
     val clearAssignee = cursor.downField("clearAssignee").as[Boolean].toOption.getOrElse(false)
     val relatedTicketIds = cursor.downField("relatedTicketIds").as[List[Long]].toOption
     val dueDate = cursor.downField("dueDate").as[String].toOption
+    val trackerId = cursor.downField("trackerId").as[Long].toOption
 
     ticketId match {
       case Some(ticketIdValue) =>
-        redmineUsecase.updateTicket(ticketIdValue, subject, description, statusId, assignedToId, relatedTicketIds, None, dueDate, clearAssignee) match {
+        redmineUsecase.updateTicket(ticketIdValue, subject, description, statusId, assignedToId, relatedTicketIds, None, dueDate, clearAssignee, trackerId) match {
           case Right(updatedTicket) => JsonRpcResponse(
             id = id,
             result = Some(Map(
@@ -744,6 +759,36 @@ class McpServerAdapter extends HttpHandler {
       case _ => JsonRpcResponse(
         id = id,
         error = Some(JsonRpcError(-32602, "Missing ticketIds or statusId parameter"))
+      )
+    }
+  }
+
+  private def handleChangeTicketTracker(id: JsonRpcId, params: Option[io.circe.Json]): JsonRpcResponse = {
+    val cursor = params.map(_.hcursor.downField("arguments")).getOrElse(io.circe.HCursor.fromJson(io.circe.Json.Null))
+
+    val ticketId = cursor.downField("ticketId").as[Long].toOption
+    val trackerId = cursor.downField("trackerId").as[Long].toOption
+
+    (ticketId, trackerId) match {
+      case (Some(ticketIdValue), Some(trackerIdValue)) =>
+        redmineUsecase.updateTicket(ticketIdValue, None, None, None, None, trackerId = Some(trackerIdValue)) match {
+          case Right(ticket) => JsonRpcResponse(
+            id = id,
+            result = Some(Map(
+              "content" -> List(Map(
+                "type" -> "text".asJson,
+                "text" -> s"Tracker changed successfully for ticket #${ticket.id}: ${ticket.title}".asJson
+              )).asJson
+            ).asJson)
+          )
+          case Left(error) => JsonRpcResponse(
+            id = id,
+            error = Some(JsonRpcError(-32603, s"Tracker change failed: $error"))
+          )
+        }
+      case _ => JsonRpcResponse(
+        id = id,
+        error = Some(JsonRpcError(-32602, "Missing ticketId or trackerId parameter"))
       )
     }
   }
