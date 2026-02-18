@@ -8,11 +8,17 @@ case class RedmineAssignee(
   name: String
 )
 
+case class RedmineTracker(
+  id: Long,
+  name: String
+)
+
 case class RedmineTicket(
   id: Long,
   title: String,
   description: Option[String] = None,
-  assignee: Option[RedmineAssignee] = None
+  assignee: Option[RedmineAssignee] = None,
+  tracker: Option[RedmineTracker] = None
 )
 
 case class RedmineTicketResponse(
@@ -25,7 +31,8 @@ case class RedmineIssueData(
   description: Option[String],
   status: RedmineStatus,
   project: RedmineProject,
-  assigned_to: Option[RedmineAssignee] = None
+  assigned_to: Option[RedmineAssignee] = None,
+  tracker: Option[RedmineTracker] = None
 )
 
 case class RedmineStatus(
@@ -172,6 +179,10 @@ case class RedmineTicketWithJournalsResponse(
 // Circe decoders
 object RedmineAssignee {
   implicit val decoder: Decoder[RedmineAssignee] = deriveDecoder[RedmineAssignee]
+}
+
+object RedmineTracker {
+  implicit val decoder: Decoder[RedmineTracker] = deriveDecoder[RedmineTracker]
 }
 
 object RedmineIssueData {

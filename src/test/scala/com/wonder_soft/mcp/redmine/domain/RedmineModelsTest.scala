@@ -37,6 +37,16 @@ class RedmineModelsTest extends FunSuite {
     assertEquals(project.name, "Test Project")
   }
 
+  test("RedmineTracker should decode from JSON") {
+    val json = """{"id": 1, "name": "Bug"}"""
+    val result = decode[RedmineTracker](json)
+
+    assert(result.isRight)
+    val tracker = result.toOption.get
+    assertEquals(tracker.id, 1L)
+    assertEquals(tracker.name, "Bug")
+  }
+
   test("RedmineIssueData should decode from JSON with all fields") {
     val json = """{
       "id": 123,
@@ -44,7 +54,8 @@ class RedmineModelsTest extends FunSuite {
       "description": "This is a test",
       "status": {"id": 1, "name": "New"},
       "project": {"id": 1, "name": "Test Project"},
-      "assigned_to": {"id": 1, "name": "John Doe"}
+      "assigned_to": {"id": 1, "name": "John Doe"},
+      "tracker": {"id": 2, "name": "Feature"}
     }"""
     val result = decode[RedmineIssueData](json)
 
@@ -57,6 +68,9 @@ class RedmineModelsTest extends FunSuite {
     assertEquals(issue.project.name, "Test Project")
     assert(issue.assigned_to.isDefined)
     assertEquals(issue.assigned_to.get.name, "John Doe")
+    assert(issue.tracker.isDefined)
+    assertEquals(issue.tracker.get.id, 2L)
+    assertEquals(issue.tracker.get.name, "Feature")
   }
 
   test("RedmineIssueData should decode from JSON without optional fields") {
@@ -73,6 +87,7 @@ class RedmineModelsTest extends FunSuite {
     assertEquals(issue.subject, None)
     assertEquals(issue.description, None)
     assertEquals(issue.assigned_to, None)
+    assertEquals(issue.tracker, None)
   }
 
   test("RedmineTicketResponse should decode full issue response") {

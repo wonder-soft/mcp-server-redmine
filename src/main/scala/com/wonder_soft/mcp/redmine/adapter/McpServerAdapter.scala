@@ -491,12 +491,13 @@ class McpServerAdapter extends HttpHandler {
         redmineUsecase.adapter.getTicket(ticketId) match {
           case Right(ticket) =>
             val assigneeInfo = ticket.assignee.map(a => s"Assignee: ${a.name} (ID: ${a.id})").getOrElse("Assignee: Not assigned")
+            val trackerInfo = ticket.tracker.map(t => s"Tracker: ${t.name} (ID: ${t.id})").getOrElse("Tracker: Unknown")
             JsonRpcResponse(
               id = id,
               result = Some(Map(
                 "content" -> List(Map(
                   "type" -> "text".asJson,
-                  "text" -> s"Ticket #${ticket.id}: ${ticket.title}\n${assigneeInfo}\nDescription: ${ticket.description.getOrElse("None")}".asJson
+                  "text" -> s"Ticket #${ticket.id}: ${ticket.title}\n${trackerInfo}\n${assigneeInfo}\nDescription: ${ticket.description.getOrElse("None")}".asJson
                 )).asJson
               ).asJson)
             )
@@ -599,7 +600,8 @@ class McpServerAdapter extends HttpHandler {
               s"No child tickets found for parent ticket #${parentIdValue}${assigneeInfo}.\nTotal: ${response.total_count}, Offset: ${response.offset}, Limit: ${response.limit}"
             } else {
               val ticketList = response.issues.map { issue =>
-                s"#${issue.id}: ${issue.subject.getOrElse("No title")} (${issue.status.name}) [${issue.project.name}]"
+                val trackerStr = issue.tracker.map(t => s" {${t.name}}").getOrElse("")
+                s"#${issue.id}: ${issue.subject.getOrElse("No title")} (${issue.status.name})${trackerStr} [${issue.project.name}]"
               }.mkString("\n")
 
               s"Child tickets of parent #${parentIdValue}${assigneeInfo} (${response.issues.length} of ${response.total_count}, offset: ${response.offset}):\n$ticketList"
