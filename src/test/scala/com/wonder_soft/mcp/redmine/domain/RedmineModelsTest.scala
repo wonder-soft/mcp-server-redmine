@@ -73,6 +73,50 @@ class RedmineModelsTest extends FunSuite {
     assertEquals(issue.tracker.get.name, "Feature")
   }
 
+  test("RedmineIssueData should decode due_date when present") {
+    val json = """{
+      "id": 321,
+      "subject": "Ticket with due date",
+      "status": {"id": 1, "name": "New"},
+      "project": {"id": 1, "name": "Project"},
+      "due_date": "2026-05-01"
+    }"""
+    val result = decode[RedmineIssueData](json)
+
+    assert(result.isRight, s"Decoding failed: ${result.left.toOption}")
+    val issue = result.toOption.get
+    assertEquals(issue.due_date, Some("2026-05-01"))
+  }
+
+  test("RedmineChildTicketsResponse should decode due_date for each issue") {
+    val json = """{
+      "issues": [
+        {
+          "id": 1,
+          "subject": "Has due date",
+          "status": {"id": 1, "name": "New"},
+          "project": {"id": 1, "name": "Project"},
+          "due_date": "2026-06-15"
+        },
+        {
+          "id": 2,
+          "subject": "No due date",
+          "status": {"id": 1, "name": "New"},
+          "project": {"id": 1, "name": "Project"}
+        }
+      ],
+      "total_count": 2,
+      "offset": 0,
+      "limit": 25
+    }"""
+    val result = decode[RedmineChildTicketsResponse](json)
+
+    assert(result.isRight, s"Decoding failed: ${result.left.toOption}")
+    val response = result.toOption.get
+    assertEquals(response.issues.head.due_date, Some("2026-06-15"))
+    assertEquals(response.issues(1).due_date, None)
+  }
+
   test("RedmineIssueData should decode from JSON without optional fields") {
     val json = """{
       "id": 123,
@@ -88,6 +132,7 @@ class RedmineModelsTest extends FunSuite {
     assertEquals(issue.description, None)
     assertEquals(issue.assigned_to, None)
     assertEquals(issue.tracker, None)
+    assertEquals(issue.due_date, None)
   }
 
   test("RedmineTicketResponse should decode full issue response") {
