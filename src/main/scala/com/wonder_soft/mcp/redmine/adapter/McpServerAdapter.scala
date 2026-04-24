@@ -492,12 +492,13 @@ class McpServerAdapter extends HttpHandler {
           case Right(ticket) =>
             val assigneeInfo = ticket.assignee.map(a => s"Assignee: ${a.name} (ID: ${a.id})").getOrElse("Assignee: Not assigned")
             val trackerInfo = ticket.tracker.map(t => s"Tracker: ${t.name} (ID: ${t.id})").getOrElse("Tracker: Unknown")
+            val dueDateInfo = s"Due date: ${ticket.dueDate.getOrElse("None")}"
             JsonRpcResponse(
               id = id,
               result = Some(Map(
                 "content" -> List(Map(
                   "type" -> "text".asJson,
-                  "text" -> s"Ticket #${ticket.id}: ${ticket.title}\n${trackerInfo}\n${assigneeInfo}\nDescription: ${ticket.description.getOrElse("None")}".asJson
+                  "text" -> s"Ticket #${ticket.id}: ${ticket.title}\n${trackerInfo}\n${assigneeInfo}\n${dueDateInfo}\nDescription: ${ticket.description.getOrElse("None")}".asJson
                 )).asJson
               ).asJson)
             )
@@ -601,7 +602,8 @@ class McpServerAdapter extends HttpHandler {
             } else {
               val ticketList = response.issues.map { issue =>
                 val trackerStr = issue.tracker.map(t => s" {${t.name}}").getOrElse("")
-                s"#${issue.id}: ${issue.subject.getOrElse("No title")} (${issue.status.name})${trackerStr} [${issue.project.name}]"
+                val dueDateStr = issue.due_date.map(d => s" <Due: $d>").getOrElse("")
+                s"#${issue.id}: ${issue.subject.getOrElse("No title")} (${issue.status.name})${trackerStr}${dueDateStr} [${issue.project.name}]"
               }.mkString("\n")
 
               s"Child tickets of parent #${parentIdValue}${assigneeInfo} (${response.issues.length} of ${response.total_count}, offset: ${response.offset}):\n$ticketList"

@@ -43,7 +43,8 @@ class RedmineApiAdapter(
               title = issue.subject.getOrElse("No title"),
               description = issue.description,
               assignee = issue.assigned_to,
-              tracker = issue.tracker
+              tracker = issue.tracker,
+              dueDate = issue.due_date
             ))
           case Left(error) => Left(s"API Error: $error")
         }

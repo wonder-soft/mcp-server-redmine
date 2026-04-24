@@ -18,7 +18,8 @@ case class RedmineTicket(
   title: String,
   description: Option[String] = None,
   assignee: Option[RedmineAssignee] = None,
-  tracker: Option[RedmineTracker] = None
+  tracker: Option[RedmineTracker] = None,
+  dueDate: Option[String] = None
 )
 
 case class RedmineTicketResponse(
@@ -32,7 +33,8 @@ case class RedmineIssueData(
   status: RedmineStatus,
   project: RedmineProject,
   assigned_to: Option[RedmineAssignee] = None,
-  tracker: Option[RedmineTracker] = None
+  tracker: Option[RedmineTracker] = None,
+  due_date: Option[String] = None
 )
 
 case class RedmineStatus(
