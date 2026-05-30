@@ -324,6 +324,17 @@ class RedmineModelsTest extends FunSuite {
     assertEquals(json.hcursor.get[Long]("status_id").toOption, Some(2L))
   }
 
+  test("RedmineTicketUpdateRequest should encode parent_issue_id to JSON") {
+    val request = RedmineTicketUpdateRequest(
+      id = 123L,
+      parent_issue_id = Some(456L)
+    )
+    val json = request.asJson
+
+    assertEquals(json.hcursor.get[Long]("id").toOption, Some(123L))
+    assertEquals(json.hcursor.get[Long]("parent_issue_id").toOption, Some(456L))
+  }
+
   test("RedmineCreatedIssueData should decode created issue response") {
     val json = """{
       "id": 789,
