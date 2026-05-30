@@ -341,7 +341,8 @@ class McpServerAdapter extends HttpHandler {
             "clearAssignee" -> Map("type" -> "boolean".asJson, "description" -> "Set to true to clear the assignee (default: false)".asJson).asJson,
             "relatedTicketIds" -> Map("type" -> "array".asJson, "items" -> Map("type" -> "number".asJson).asJson, "description" -> "Related ticket IDs".asJson).asJson,
             "dueDate" -> Map("type" -> "string".asJson, "description" -> "Due date (YYYY-MM-DD format)".asJson).asJson,
-            "trackerId" -> Map("type" -> "number".asJson, "description" -> "Tracker ID".asJson).asJson
+            "trackerId" -> Map("type" -> "number".asJson, "description" -> "Tracker ID".asJson).asJson,
+            "parentTicketId" -> Map("type" -> "number".asJson, "description" -> "Parent ticket ID (reassigns the parent ticket)".asJson).asJson
           ).asJson,
           "required" -> List("id").asJson
         ).asJson
@@ -559,10 +560,11 @@ class McpServerAdapter extends HttpHandler {
     val relatedTicketIds = cursor.downField("relatedTicketIds").as[List[Long]].toOption
     val dueDate = cursor.downField("dueDate").as[String].toOption
     val trackerId = cursor.downField("trackerId").as[Long].toOption
+    val parentTicketId = cursor.downField("parentTicketId").as[Long].toOption
 
     ticketId match {
       case Some(ticketIdValue) =>
-        redmineUsecase.updateTicket(ticketIdValue, subject, description, statusId, assignedToId, relatedTicketIds, None, dueDate, clearAssignee, trackerId) match {
+        redmineUsecase.updateTicket(ticketIdValue, subject, description, statusId, assignedToId, relatedTicketIds, parentTicketId, dueDate, clearAssignee, trackerId) match {
           case Right(updatedTicket) => JsonRpcResponse(
             id = id,
             result = Some(Map(

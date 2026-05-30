@@ -210,7 +210,7 @@ Add the following to your Claude Desktop configuration (`claude_desktop_config.j
 |------|-------------|
 | `get_redmine_ticket` | Get ticket information by ID |
 | `create_redmine_ticket` | Create a new ticket |
-| `update_redmine_ticket` | Update an existing ticket |
+| `update_redmine_ticket` | Update an existing ticket (subject, description, status, assignee, tracker, parent ticket, etc.) |
 | `get_redmine_child_tickets` | Get child tickets of a parent |
 | `search_redmine_tickets` | Search tickets by title |
 | `add_redmine_comment` | Add a comment to a ticket |
